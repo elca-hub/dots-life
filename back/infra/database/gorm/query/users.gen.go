@@ -17,22 +17,20 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"back/infra/database/gorm/model"
+	"back/infra/database/gorm/orm"
 )
 
 func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user := user{}
 
 	_user.userDo.UseDB(db, opts...)
-	_user.userDo.UseModel(&model.User{})
+	_user.userDo.UseModel(&orm.User{})
 
 	tableName := _user.userDo.TableName()
 	_user.ALL = field.NewAsterisk(tableName)
 	_user.ID = field.NewString(tableName, "id")
 	_user.Name = field.NewString(tableName, "name")
 	_user.Email = field.NewString(tableName, "email")
-	_user.Birthday = field.NewTime(tableName, "birthday")
-	_user.OrganizationName = field.NewString(tableName, "organization_name")
 	_user.CreatedAt = field.NewTime(tableName, "created_at")
 	_user.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_user.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -45,15 +43,13 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 type user struct {
 	userDo userDo
 
-	ALL              field.Asterisk
-	ID               field.String
-	Name             field.String
-	Email            field.String
-	Birthday         field.Time
-	OrganizationName field.String
-	CreatedAt        field.Time
-	UpdatedAt        field.Time
-	DeletedAt        field.Field
+	ALL       field.Asterisk
+	ID        field.String
+	Name      field.String
+	Email     field.String
+	CreatedAt field.Time
+	UpdatedAt field.Time
+	DeletedAt field.Field
 
 	fieldMap map[string]field.Expr
 }
@@ -73,8 +69,6 @@ func (u *user) updateTableName(table string) *user {
 	u.ID = field.NewString(table, "id")
 	u.Name = field.NewString(table, "name")
 	u.Email = field.NewString(table, "email")
-	u.Birthday = field.NewTime(table, "birthday")
-	u.OrganizationName = field.NewString(table, "organization_name")
 	u.CreatedAt = field.NewTime(table, "created_at")
 	u.UpdatedAt = field.NewTime(table, "updated_at")
 	u.DeletedAt = field.NewField(table, "deleted_at")
@@ -102,12 +96,10 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 8)
+	u.fieldMap = make(map[string]field.Expr, 6)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["name"] = u.Name
 	u.fieldMap["email"] = u.Email
-	u.fieldMap["birthday"] = u.Birthday
-	u.fieldMap["organization_name"] = u.OrganizationName
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
 	u.fieldMap["deleted_at"] = u.DeletedAt
@@ -154,17 +146,17 @@ type IUserDo interface {
 	Count() (count int64, err error)
 	Scopes(funcs ...func(gen.Dao) gen.Dao) IUserDo
 	Unscoped() IUserDo
-	Create(values ...*model.User) error
-	CreateInBatches(values []*model.User, batchSize int) error
-	Save(values ...*model.User) error
-	First() (*model.User, error)
-	Take() (*model.User, error)
-	Last() (*model.User, error)
-	Find() ([]*model.User, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.User, err error)
-	FindInBatches(result *[]*model.User, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Create(values ...*orm.User) error
+	CreateInBatches(values []*orm.User, batchSize int) error
+	Save(values ...*orm.User) error
+	First() (*orm.User, error)
+	Take() (*orm.User, error)
+	Last() (*orm.User, error)
+	Find() ([]*orm.User, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*orm.User, err error)
+	FindInBatches(result *[]*orm.User, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*model.User) (info gen.ResultInfo, err error)
+	Delete(...*orm.User) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -176,9 +168,9 @@ type IUserDo interface {
 	Assign(attrs ...field.AssignExpr) IUserDo
 	Joins(fields ...field.RelationField) IUserDo
 	Preload(fields ...field.RelationField) IUserDo
-	FirstOrInit() (*model.User, error)
-	FirstOrCreate() (*model.User, error)
-	FindByPage(offset int, limit int) (result []*model.User, count int64, err error)
+	FirstOrInit() (*orm.User, error)
+	FirstOrCreate() (*orm.User, error)
+	FindByPage(offset int, limit int) (result []*orm.User, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
@@ -280,57 +272,57 @@ func (u userDo) Unscoped() IUserDo {
 	return u.withDO(u.DO.Unscoped())
 }
 
-func (u userDo) Create(values ...*model.User) error {
+func (u userDo) Create(values ...*orm.User) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return u.DO.Create(values)
 }
 
-func (u userDo) CreateInBatches(values []*model.User, batchSize int) error {
+func (u userDo) CreateInBatches(values []*orm.User, batchSize int) error {
 	return u.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (u userDo) Save(values ...*model.User) error {
+func (u userDo) Save(values ...*orm.User) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return u.DO.Save(values)
 }
 
-func (u userDo) First() (*model.User, error) {
+func (u userDo) First() (*orm.User, error) {
 	if result, err := u.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.User), nil
+		return result.(*orm.User), nil
 	}
 }
 
-func (u userDo) Take() (*model.User, error) {
+func (u userDo) Take() (*orm.User, error) {
 	if result, err := u.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.User), nil
+		return result.(*orm.User), nil
 	}
 }
 
-func (u userDo) Last() (*model.User, error) {
+func (u userDo) Last() (*orm.User, error) {
 	if result, err := u.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.User), nil
+		return result.(*orm.User), nil
 	}
 }
 
-func (u userDo) Find() ([]*model.User, error) {
+func (u userDo) Find() ([]*orm.User, error) {
 	result, err := u.DO.Find()
-	return result.([]*model.User), err
+	return result.([]*orm.User), err
 }
 
-func (u userDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*model.User, err error) {
-	buf := make([]*model.User, 0, batchSize)
+func (u userDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*orm.User, err error) {
+	buf := make([]*orm.User, 0, batchSize)
 	err = u.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -338,7 +330,7 @@ func (u userDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error)
 	return results, err
 }
 
-func (u userDo) FindInBatches(result *[]*model.User, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (u userDo) FindInBatches(result *[]*orm.User, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return u.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -364,23 +356,23 @@ func (u userDo) Preload(fields ...field.RelationField) IUserDo {
 	return &u
 }
 
-func (u userDo) FirstOrInit() (*model.User, error) {
+func (u userDo) FirstOrInit() (*orm.User, error) {
 	if result, err := u.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.User), nil
+		return result.(*orm.User), nil
 	}
 }
 
-func (u userDo) FirstOrCreate() (*model.User, error) {
+func (u userDo) FirstOrCreate() (*orm.User, error) {
 	if result, err := u.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*model.User), nil
+		return result.(*orm.User), nil
 	}
 }
 
-func (u userDo) FindByPage(offset int, limit int) (result []*model.User, count int64, err error) {
+func (u userDo) FindByPage(offset int, limit int) (result []*orm.User, count int64, err error) {
 	result, err = u.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -409,7 +401,7 @@ func (u userDo) Scan(result interface{}) (err error) {
 	return u.DO.Scan(result)
 }
 
-func (u userDo) Delete(models ...*model.User) (result gen.ResultInfo, err error) {
+func (u userDo) Delete(models ...*orm.User) (result gen.ResultInfo, err error) {
 	return u.DO.Delete(models)
 }
 

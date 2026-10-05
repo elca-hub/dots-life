@@ -4,9 +4,11 @@ services:
       context: ./back
     tty: true
     env_file:
-      - back/.env.example
+      - ./back/.env.example
     volumes:
       - ./back:/dotslife
+    depends_on:
+      - db
     ports:
       - "5050:5050"
   db:

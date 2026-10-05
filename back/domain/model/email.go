@@ -15,3 +15,7 @@ func NewEmail(v string) (Email, error) {
 
 	return Email{value: email}, nil
 }
+
+func (e Email) String() string {
+	return e.value.String()
+}

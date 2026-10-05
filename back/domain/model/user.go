@@ -41,3 +41,7 @@ func (u *User) Name() Name {
 func (u *User) Email() Email {
 	return u.email
 }
+
+func (u *User) ID() string {
+	return u.id
+}

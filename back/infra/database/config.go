@@ -12,7 +12,7 @@ type MySQLConfig struct {
 
 func NewMySQLConfig() *MySQLConfig {
 	return &MySQLConfig{
-		host:     os.Getenv("MYSQL_HOST"),
+		host:     os.Getenv("MYSQL_DOCKER_HOST"),
 		database: os.Getenv("MYSQL_DATABASE"),
 		port:     os.Getenv("MYSQL_PORT"),
 		user:     os.Getenv("MYSQL_USER"),

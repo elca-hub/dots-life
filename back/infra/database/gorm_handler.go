@@ -1,7 +1,8 @@
 package database
 
 import (
-	"database/sql"
+	"back/domain/repo/db"
+	"back/infra/database/gorm/repo"
 	"fmt"
 
 	"gorm.io/driver/mysql"
@@ -16,7 +17,7 @@ type GormHandler struct {
 
 func NewGormHandler(c *MySQLConfig) (*GormHandler, error) {
 	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Asia%%2FTokyo",
+		"%s:%s@tcp(%s:%s)/%s",
 		c.user,
 		c.password,
 		c.host,
@@ -24,20 +25,15 @@ func NewGormHandler(c *MySQLConfig) (*GormHandler, error) {
 		c.database,
 	)
 
-	engine, err := sql.Open("mysql", dsn)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := engine.Ping(); err != nil {
-		return nil, err
-	}
-
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn))
 
 	if err != nil {
 		return nil, err
 	}
 
 	return &GormHandler{db: db}, nil
+}
+
+func (h *GormHandler) UserRepository() db.InterUserRepository {
+	return repo.NewGormUserRepository(h.db)
 }

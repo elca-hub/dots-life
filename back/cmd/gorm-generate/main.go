@@ -17,7 +17,7 @@ func main() {
 
 	g := gen.NewGenerator(gen.Config{
 		OutPath:      "../../infra/database/gorm/query",
-		ModelPkgPath: "../../infra/database/gorm/model",
+		ModelPkgPath: "../../infra/database/gorm/orm",
 		Mode:         gen.WithDefaultQuery | gen.WithQueryInterface,
 	})
 
