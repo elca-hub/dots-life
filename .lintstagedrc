@@ -1,5 +1,5 @@
 {
-  "*.{go}": [
+  "*.go": [
     "golangci-lint run ./back/..."
   ]
 }
