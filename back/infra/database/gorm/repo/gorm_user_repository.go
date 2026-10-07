@@ -62,6 +62,7 @@ func (g *GormUserRepository) WithTransaction(ctx context.Context, fn func(contex
 
 	if err := fn(context.WithValue(ctx, transactionContextKey, tx.Statement.Context)); err != nil {
 		tx.Rollback()
+
 		return err
 	}
 

@@ -1,0 +1,6 @@
+{
+  "*.go": [
+    "sh -c 'cd back && golangci-lint run ./... --fix' c--",
+    "sh -c 'cd back && golangci-lint fmt ./...' c--"
+  ]
+}

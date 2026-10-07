@@ -23,6 +23,7 @@ func NewSlogLogger(m string) (logger.Logger, error) {
 	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level: logLevel,
 	}))
+
 	return &slogLogger{logger: log}, nil
 }
 
