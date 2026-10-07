@@ -46,10 +46,12 @@ func (e *EchoEngine) Listen() {
 		LogValuesFunc: func(c *echo.Context, v middleware.RequestLoggerValues) error {
 			if v.Error != nil {
 				e.log.Errorf("request failed", "uri", v.URI, "status", v.Status, "error", v.Error)
+
 				return nil
 			}
 
 			e.log.Infof("request", "uri", v.URI, "status", v.Status)
+
 			return nil
 		},
 	}))

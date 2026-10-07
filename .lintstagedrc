@@ -1,5 +1,0 @@
-{
-  "*.go": [
-    "cd back && golangci-lint run ./..."
-  ]
-}

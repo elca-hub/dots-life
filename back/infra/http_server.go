@@ -39,8 +39,12 @@ func (h *HttpServerConfig) Mode(m string) *HttpServerConfig {
 
 		return h
 	default:
-
-		panic(fmt.Sprintf("You must set a MODE in your environments: %s, %s, %s", mode.DevelopmentMode, mode.StagingMode, mode.ProductionMode))
+		panic(fmt.Sprintf(
+			"You must set a MODE in your environments: %s, %s, %s",
+			mode.DevelopmentMode,
+			mode.StagingMode,
+			mode.ProductionMode,
+		))
 	}
 }
 
