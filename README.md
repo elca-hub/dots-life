@@ -20,7 +20,7 @@ docker compose up -d db # DBの起動
 cd back
 make migrate-up
 docker compose down
-```
+``/Users/motekikoyo/Documents/スクリーンショット/スクリーンショット 2026-10-02 16.22.00.pn/Users/motekikoyo/Documents/スクリーンショット/スクリーンショット 2026-10-02 16.22.00.pngg`
 
 ### 実行
 
