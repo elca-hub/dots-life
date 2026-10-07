@@ -1,5 +1,5 @@
 {
   "*.go": [
-    "golangci-lint run ./back/..."
+    "cd back && golangci-lint run ./..."
   ]
 }
